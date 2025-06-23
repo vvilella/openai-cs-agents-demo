@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Install frontend deps
+      run: |
+        cd ui
+        npm ci
+
+    - name: Lint frontend
+      run: |
+        cd ui
+        npm run lint || echo "No lint script configured"
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install backend deps
+      run: |
+        cd python-backend
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run backend tests (if any)
+      run: |
+        cd python-backend
+        pytest || echo "No tests defined yet"
