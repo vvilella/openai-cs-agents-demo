@@ -2,18 +2,18 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: ["*"]  # Roda em qualquer branch
   pull_request:
-    branches: [main]
-  # Adiciona suporte a testes em outras branches também
-  workflow_dispatch:
+    branches: ["*"]  # Roda PR de qualquer branch
+  workflow_dispatch:  # Permite execução manual
 
 jobs:
   lint:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -25,9 +25,9 @@ jobs:
           python -m venv .venv
           source .venv/bin/activate
           pip install -r requirements.txt
-          pip install flake8  # 👈 adiciona isso aqui
+          pip install flake8
 
       - name: Run Flake8
         run: |
           source .venv/bin/activate
-          flake8 .  # roda linting na raiz do projeto
+          flake8 .
