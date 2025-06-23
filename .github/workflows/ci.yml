@@ -1,45 +1,46 @@
 name: CI
 
 on:
-  pull_request:
-    branches: [main]
   push:
-    branches: [main]
+    branches:
+      - '**'          # Roda push em qualquer branch
+  pull_request:
+    branches:
+      - main          # Continua rodando PRs que têm como base a main
 
 jobs:
-  lint-and-test:
+  test-and-lint:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
 
-    - name: Install frontend deps
-      run: |
-        cd ui
-        npm ci
+      - name: Install Python dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -r python-backend/requirements.txt
 
-    - name: Lint frontend
-      run: |
-        cd ui
-        npm run lint || echo "No lint script configured"
+      - name: Run Python lint
+        run: |
+          source .venv/bin/activate
+          flake8 python-backend
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
 
-    - name: Install backend deps
-      run: |
-        cd python-backend
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Install Node.js dependencies
+        run: |
+          cd ui
+          npm install
 
-    - name: Run backend tests (if any)
-      run: |
-        cd python-backend
-        pytest || echo "No tests defined yet"
+      - name: Run frontend lint
+        run: |
+          cd ui
+          npm run lint
