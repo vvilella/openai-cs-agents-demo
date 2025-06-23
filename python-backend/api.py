@@ -3,8 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 from uuid import uuid4
+from dotenv import load_dotenv
 import time
 import logging
+
+load_dotenv()
 
 from main import (
     triage_agent,
